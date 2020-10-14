@@ -28,7 +28,7 @@ export class Client {
         console.error(error)
       } else {
         const data = response.getFilebox()
-        console.log(`${this.getPrefix()}: Receive response with length: ${data.length}`)
+        console.log(`${this.getPrefix()}: id: ${i} receive response with length: ${data.length}`)
         if (++this.responseCount === TOTAL_REQUEST) {
           setTimeout(() => {
             process.exit(0)

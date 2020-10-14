@@ -1,5 +1,7 @@
 import * as path from 'path'
 
+export const DEFAULT_FILE_SIZE = '100m'
+
 export const FILE_PATH = path.join(
   __dirname,
   'test.json',

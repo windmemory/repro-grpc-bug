@@ -25,12 +25,9 @@ const getLongString = (length: number) => {
   return str
 }
 
-const main = async () => {
-  const size = process.argv[2]
+export const generateData = (size: string) => {
   const parsedSize = parseSize(size)
   const str = getLongString(parsedSize)
   fs.writeFileSync(FILE_PATH, JSON.stringify({ data: str }))
   console.info(`Successfully write ${size} data into test.json`)
 }
-
-main()
