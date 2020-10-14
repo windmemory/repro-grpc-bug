@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+message MessageFileResponse {
+  string filebox = 1;
+}
+
+message MessageFileRequest {
+  string id = 1;
+}
+
+message EventRequest {}
+
+message EventResponse {
+  string payload = 2;
+}
+
+service MyService {
+  rpc MessageFile (MessageFileRequest) returns (MessageFileResponse) {}
+  rpc Event (EventRequest)  returns (stream EventResponse) {}
+}

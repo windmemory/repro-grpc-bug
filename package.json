@@ -1,0 +1,35 @@
+{
+  "name": "repro-grpc-bug",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "generate": "bash -x scripts/generate-stub.sh",
+    "test-debug": "GRPC_VERBOSITY=debug GRPC_TRACE=http npm run test",
+    "test": "ts-node src/test.ts",
+    "str": "node --max_old_space_size=4096 ./node_modules/.bin/ts-node src/gen-test-str.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/windmemory/repro-grpc-bug.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0 License",
+  "bugs": {
+    "url": "https://github.com/windmemory/repro-grpc-bug/issues"
+  },
+  "homepage": "https://github.com/windmemory/repro-grpc-bug#readme",
+  "dependencies": {
+    "google-protobuf": "^3.13.0",
+    "grpc": "^1.24.3",
+    "moment": "^2.29.1",
+    "ts-protoc-gen": "^0.13.0"
+  },
+  "devDependencies": {
+    "grpc-tools": "^1.9.1",
+    "grpc_tools_node_protoc_ts": "^5.0.0",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  }
+}
