@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as my_proto_pb from "./my-proto_pb";
 
 interface IMyServiceService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {

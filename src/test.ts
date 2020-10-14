@@ -5,6 +5,8 @@ import { Client } from './client'
 import { DEFAULT_FILE_SIZE, FILE_PATH } from './config'
 import { generateData } from './data-generator'
 
+const blocked = require('blocked')
+
 const checkDataFile = () => {
   const dataFileExist = fs.existsSync(FILE_PATH)
   if (!dataFileExist) {
@@ -14,6 +16,12 @@ const checkDataFile = () => {
 }
 
 const main = async () => {
+
+  blocked(function(ms){
+    console.info("=============BLOCKED FOR " + ms + " ms")
+  }, {
+    threshold: 150,
+  })
 
   checkDataFile()
 

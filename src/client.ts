@@ -1,4 +1,4 @@
-import * as grpc from 'grpc'
+import * as grpc from '@grpc/grpc-js'
 import * as moment from 'moment'
 
 import { MyServiceClient } from '../generated/proto-ts/my-proto_grpc_pb'
@@ -21,14 +21,17 @@ export class Client {
   }
 
   public async makeCall (i: number) {
+    console.log(`${this.getPrefix()}: makeCall(${i})`)
+
     const request = new MessageFileRequest()
     request.setId(i.toString())
     this.grpcClient.messageFile(request, (error, response) => {
+      console.log(`${this.getPrefix()}: id: ${i} received response`)
       if (error) {
         console.error(error)
       } else {
         const data = response.getFilebox()
-        console.log(`${this.getPrefix()}: id: ${i} receive response with length: ${data.length}`)
+        console.log(`${this.getPrefix()}: id: ${i} received response with length: ${data.length}`)
         if (++this.responseCount === TOTAL_REQUEST) {
           setTimeout(() => {
             process.exit(0)
@@ -36,6 +39,8 @@ export class Client {
         }
       }
     })
+
+    console.log(`${this.getPrefix()}: makeCall(${i}) return`)
   }
 
   public triggerHeartbeat () {

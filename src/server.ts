@@ -1,4 +1,4 @@
-import * as grpc from 'grpc'
+import * as grpc from '@grpc/grpc-js'
 import * as moment from 'moment'
 import * as fs from 'fs'
 
@@ -25,19 +25,27 @@ export class TestServer {
       messageFile: async (call, callback) => {
         const id = call.request.getId()
         console.log(`${this.getPrefix()}: receive request with id: ${id}`)
+
         const response = new MessageFileResponse()
         response.setFilebox(this.data)
-        console.info(`${this.getPrefix()}: message file sending response...`)
+        
+        console.info(`${this.getPrefix()}: message file sending... id: ${id}`)
         callback(null, response)
-        console.info(`${this.getPrefix()}: message file response sent`)
+        console.info(`${this.getPrefix()}: message file sent... id: ${id}`)
+        
         if (++this.requestCount === TOTAL_REQUEST) {
-          clearInterval(this.healthInterval)
+          console.info(`${this.getPrefix()}: message file done`)
+          setTimeout(() => {
+            clearInterval(this.healthInterval)
+            console.info('cleared interval')
+          }, 5 * 1000)
         }
+
       },
       event: async (call) => {
         this.healthInterval = setInterval(() => {
           const response = new EventResponse()
-          response.setPayload('heartbeat')
+          response.setPayload('heartbeat: ' + Date.now())
           console.info(`${this.getPrefix()}: send heartbeat`)
           call.write(response)
         }, 100)
@@ -46,16 +54,19 @@ export class TestServer {
 
     this.server.addService(
       MyServiceService,
-      impl,
+      impl as any,
     )
-    const port = this.server.bind(
+    this.server.bindAsync(
       ENDPOINT,
-      grpc.ServerCredentials.createInsecure()
+      grpc.ServerCredentials.createInsecure(),
+      (error, port) => {
+        console.info(error)
+        console.log(`Server bind port: ${port}`)
+
+        this.server.start()
+
+      },
     )
-
-    console.log(`Server bind port: ${port}`)
-
-    this.server.start()
   }
 
   private getData () {
