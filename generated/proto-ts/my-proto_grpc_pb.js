@@ -1,7 +1,7 @@
 // GENERATED CODE -- DO NOT EDIT!
 
 'use strict';
-var grpc = require('@grpc/grpc-js');
+var grpc = require('grpc');
 var my$proto_pb = require('./my-proto_pb.js');
 
 function serialize_EventRequest(arg) {
@@ -48,6 +48,28 @@ function deserialize_MessageFileResponse(buffer_arg) {
   return my$proto_pb.MessageFileResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_MessageFileStreamRequest(arg) {
+  if (!(arg instanceof my$proto_pb.MessageFileStreamRequest)) {
+    throw new Error('Expected argument of type MessageFileStreamRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_MessageFileStreamRequest(buffer_arg) {
+  return my$proto_pb.MessageFileStreamRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_MessageFileStreamResponse(arg) {
+  if (!(arg instanceof my$proto_pb.MessageFileStreamResponse)) {
+    throw new Error('Expected argument of type MessageFileStreamResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_MessageFileStreamResponse(buffer_arg) {
+  return my$proto_pb.MessageFileStreamResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 
 var MyServiceService = exports.MyServiceService = {
   messageFile: {
@@ -60,6 +82,17 @@ var MyServiceService = exports.MyServiceService = {
     requestDeserialize: deserialize_MessageFileRequest,
     responseSerialize: serialize_MessageFileResponse,
     responseDeserialize: deserialize_MessageFileResponse,
+  },
+  messageFileStream: {
+    path: '/MyService/MessageFileStream',
+    requestStream: false,
+    responseStream: true,
+    requestType: my$proto_pb.MessageFileStreamRequest,
+    responseType: my$proto_pb.MessageFileStreamResponse,
+    requestSerialize: serialize_MessageFileStreamRequest,
+    requestDeserialize: deserialize_MessageFileStreamRequest,
+    responseSerialize: serialize_MessageFileStreamResponse,
+    responseDeserialize: deserialize_MessageFileStreamResponse,
   },
   event: {
     path: '/MyService/Event',

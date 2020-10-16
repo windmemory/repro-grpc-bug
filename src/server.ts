@@ -1,9 +1,10 @@
-import * as grpc from '@grpc/grpc-js'
+import * as grpc from 'grpc'
 import * as moment from 'moment'
+import { FileBox } from 'file-box'
 import * as fs from 'fs'
 
 import { IMyServiceServer, MyServiceService } from '../generated/proto-ts/my-proto_grpc_pb'
-import { EventResponse, MessageFileResponse } from '../generated/proto-ts/my-proto_pb'
+import { EventResponse, MessageFileResponse, MessageFileStreamResponse } from '../generated/proto-ts/my-proto_pb'
 import { FILE_PATH, GRPC_OPTIONS, ENDPOINT, TOTAL_REQUEST } from './config'
 
 const PRE = 'SERVER'
@@ -41,6 +42,26 @@ export class TestServer {
           }, 5 * 1000)
         }
 
+      },
+      messageFileStream: async (call) => {
+        const id = call.request.getId()
+        console.log(`${this.getPrefix()}: receive request with id: ${id}`)
+
+        const filebox = FileBox.fromFile(`${__dirname}/test.json`)
+        const stream = await filebox.toStream()
+
+        const response = new MessageFileStreamResponse()
+        response.setName(filebox.name)
+        stream.on('data', (data: Buffer) => {
+          response.setData(data)
+          call.write(response)
+        }).on('end', () => {
+          call.end()
+          setTimeout(() => {
+            clearInterval(this.healthInterval)
+            console.info('cleared interval')
+          }, 5 * 1000)
+        })
       },
       event: async (call) => {
         this.healthInterval = setInterval(() => {

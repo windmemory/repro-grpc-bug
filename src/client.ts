@@ -1,8 +1,12 @@
-import * as grpc from '@grpc/grpc-js'
+import FileBox from 'file-box'
+import * as grpc from 'grpc'
 import * as moment from 'moment'
+import {
+  PassThrough,
+} from 'stream'
 
 import { MyServiceClient } from '../generated/proto-ts/my-proto_grpc_pb'
-import { EventRequest, EventResponse, MessageFileRequest } from '../generated/proto-ts/my-proto_pb'
+import { EventRequest, EventResponse, MessageFileRequest, MessageFileStreamRequest, MessageFileStreamResponse } from '../generated/proto-ts/my-proto_pb'
 import { ENDPOINT, GRPC_OPTIONS, TOTAL_REQUEST } from './config'
 
 const PRE = 'CLIENT'
@@ -43,13 +47,46 @@ export class Client {
     console.log(`${this.getPrefix()}: makeCall(${i}) return`)
   }
 
+  public async makeCallStream (i: number) {
+    console.log(`${this.getPrefix()}: makeCall(${i})`)
+
+    const request = new MessageFileStreamRequest()
+    request.setId(i.toString())
+
+    const stream = this.grpcClient.messageFileStream(request)
+
+    const outputStream = new PassThrough()
+    let fileName: string | undefined
+    stream.on('data', (response: MessageFileStreamResponse) => {
+      if (!fileName) {
+        fileName = response.getName()
+      }
+      outputStream.write(response.getData())
+    }).on('end', () => outputStream.end())
+
+    if (!fileName) {
+      // FIXME: How to get the fileName from the server?
+      console.error('Can not create file box since no fileName')
+      process.exit(-1)
+    }
+
+    const fileBox = FileBox.fromStream(outputStream, fileName)
+    await fileBox.toFile(undefined, true)
+    console.log(`${this.getPrefix()}: id: ${i} file received`)
+    if (++this.responseCount === TOTAL_REQUEST) {
+      setTimeout(() => {
+        process.exit(0)
+      }, 1000)
+    }
+  }
+
   public triggerHeartbeat () {
     const request = new EventRequest()
     const stream = this.grpcClient.event(request)
     stream.once('data', () => {
       setTimeout(() => {
         for (let i = 0; i < TOTAL_REQUEST; i++) {
-          this.makeCall(i)
+          this.makeCallStream(i)
         }
       }, 500)
     })

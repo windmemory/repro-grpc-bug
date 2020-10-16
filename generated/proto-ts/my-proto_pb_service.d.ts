@@ -13,6 +13,15 @@ type MyServiceMessageFile = {
   readonly responseType: typeof my_proto_pb.MessageFileResponse;
 };
 
+type MyServiceMessageFileStream = {
+  readonly methodName: string;
+  readonly service: typeof MyService;
+  readonly requestStream: false;
+  readonly responseStream: true;
+  readonly requestType: typeof my_proto_pb.MessageFileStreamRequest;
+  readonly responseType: typeof my_proto_pb.MessageFileStreamResponse;
+};
+
 type MyServiceEvent = {
   readonly methodName: string;
   readonly service: typeof MyService;
@@ -25,6 +34,7 @@ type MyServiceEvent = {
 export class MyService {
   static readonly serviceName: string;
   static readonly MessageFile: MyServiceMessageFile;
+  static readonly MessageFileStream: MyServiceMessageFileStream;
   static readonly Event: MyServiceEvent;
 }
 
@@ -69,6 +79,7 @@ export class MyServiceClient {
     requestMessage: my_proto_pb.MessageFileRequest,
     callback: (error: ServiceError|null, responseMessage: my_proto_pb.MessageFileResponse|null) => void
   ): UnaryResponse;
+  messageFileStream(requestMessage: my_proto_pb.MessageFileStreamRequest, metadata?: grpc.Metadata): ResponseStream<my_proto_pb.MessageFileStreamResponse>;
   event(requestMessage: my_proto_pb.EventRequest, metadata?: grpc.Metadata): ResponseStream<my_proto_pb.EventResponse>;
 }
 

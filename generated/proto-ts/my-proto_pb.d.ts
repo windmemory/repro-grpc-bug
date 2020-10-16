@@ -79,3 +79,49 @@ export namespace EventResponse {
   }
 }
 
+export class MessageFileStreamRequest extends jspb.Message {
+  getId(): string;
+  setId(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): MessageFileStreamRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: MessageFileStreamRequest): MessageFileStreamRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: MessageFileStreamRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): MessageFileStreamRequest;
+  static deserializeBinaryFromReader(message: MessageFileStreamRequest, reader: jspb.BinaryReader): MessageFileStreamRequest;
+}
+
+export namespace MessageFileStreamRequest {
+  export type AsObject = {
+    id: string,
+  }
+}
+
+export class MessageFileStreamResponse extends jspb.Message {
+  getData(): Uint8Array | string;
+  getData_asU8(): Uint8Array;
+  getData_asB64(): string;
+  setData(value: Uint8Array | string): void;
+
+  getName(): string;
+  setName(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): MessageFileStreamResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: MessageFileStreamResponse): MessageFileStreamResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: MessageFileStreamResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): MessageFileStreamResponse;
+  static deserializeBinaryFromReader(message: MessageFileStreamResponse, reader: jspb.BinaryReader): MessageFileStreamResponse;
+}
+
+export namespace MessageFileStreamResponse {
+  export type AsObject = {
+    data: Uint8Array | string,
+    name: string,
+  }
+}
+

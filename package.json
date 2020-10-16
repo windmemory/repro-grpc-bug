@@ -21,9 +21,10 @@
   },
   "homepage": "https://github.com/windmemory/repro-grpc-bug#readme",
   "dependencies": {
-    "@grpc/grpc-js": "^1.1.7",
     "blocked": "^1.3.0",
+    "file-box": "^0.12.8",
     "google-protobuf": "^3.13.0",
+    "grpc": "^1.24.3",
     "moment": "^2.29.1",
     "ts-protoc-gen": "^0.13.0"
   },
