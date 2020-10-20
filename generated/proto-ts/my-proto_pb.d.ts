@@ -99,6 +99,30 @@ export namespace MessageFileStreamRequest {
   }
 }
 
+export class MessageFileStreamInfo extends jspb.Message {
+  getName(): string;
+  setName(value: string): void;
+
+  getConversationId(): string;
+  setConversationId(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): MessageFileStreamInfo.AsObject;
+  static toObject(includeInstance: boolean, msg: MessageFileStreamInfo): MessageFileStreamInfo.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: MessageFileStreamInfo, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): MessageFileStreamInfo;
+  static deserializeBinaryFromReader(message: MessageFileStreamInfo, reader: jspb.BinaryReader): MessageFileStreamInfo;
+}
+
+export namespace MessageFileStreamInfo {
+  export type AsObject = {
+    name: string,
+    conversationId: string,
+  }
+}
+
 export class MessageFileStreamResponse extends jspb.Message {
   hasData(): boolean;
   clearData(): void;
@@ -107,10 +131,10 @@ export class MessageFileStreamResponse extends jspb.Message {
   getData_asB64(): string;
   setData(value: Uint8Array | string): void;
 
-  hasName(): boolean;
-  clearName(): void;
-  getName(): string;
-  setName(value: string): void;
+  hasInfo(): boolean;
+  clearInfo(): void;
+  getInfo(): MessageFileStreamInfo | undefined;
+  setInfo(value?: MessageFileStreamInfo): void;
 
   getResponseCase(): MessageFileStreamResponse.ResponseCase;
   serializeBinary(): Uint8Array;
@@ -126,13 +150,13 @@ export class MessageFileStreamResponse extends jspb.Message {
 export namespace MessageFileStreamResponse {
   export type AsObject = {
     data: Uint8Array | string,
-    name: string,
+    info?: MessageFileStreamInfo.AsObject,
   }
 
   export enum ResponseCase {
     RESPONSE_NOT_SET = 0,
     DATA = 1,
-    NAME = 2,
+    INFO = 2,
   }
 }
 

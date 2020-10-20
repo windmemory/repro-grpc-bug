@@ -3,10 +3,11 @@ import * as grpc from 'grpc'
 import * as moment from 'moment'
 import {
   PassThrough,
+  Transform,
 } from 'stream'
 
 import { MyServiceClient } from '../generated/proto-ts/my-proto_grpc_pb'
-import { EventRequest, EventResponse, MessageFileRequest, MessageFileStreamRequest, MessageFileStreamResponse } from '../generated/proto-ts/my-proto_pb'
+import { EventRequest, EventResponse, MessageFileRequest, MessageFileStreamInfo, MessageFileStreamRequest, MessageFileStreamResponse } from '../generated/proto-ts/my-proto_pb'
 import { ENDPOINT, GRPC_OPTIONS, TOTAL_REQUEST } from './config'
 
 const PRE = 'CLIENT'
@@ -57,28 +58,54 @@ export class Client {
     metaData.add('name', 'fileName')
     const stream = this.grpcClient.messageFileStream(request, metaData)
 
-    const fileName = await new Promise<string>((resolve, reject) => {
-      stream.once('metadata', (metadata: grpc.Metadata) => {
-        resolve(metadata.get('name')[0].toString())
-      }).once('error', err => reject(err))
+    const info = await new Promise<MessageFileStreamInfo>((resolve) => {
+      stream.once('data', (response: MessageFileStreamResponse) => {
+        if (response.hasInfo()) {
+          const info = response.getInfo()
+          resolve(info)
+        } else {
+          // reject
+        }
+      })
+    })
+    
+    const trans = new Transform({
+      transform (chunk: MessageFileStreamResponse, encoding, cb) {
+        if (chunk.hasData()) {
+          cb(null, chunk.getData())
+        } else {
+          cb(new Error('haha'))
+        }  
+      }
     })
 
-    const outputStream = new PassThrough()
+    const fileName = info.getName()
 
-    stream.on('data', (response: MessageFileStreamResponse) => {
-      outputStream.write(response.getData())
-    }).on('end', () => {
-      outputStream.end()
-    })
+    return FileBox.fromStream(stream.pipe(trans), fileName)
 
-    const fileBox = FileBox.fromStream(outputStream, fileName)
-    await fileBox.toFile(undefined, true)
-    console.log(`${this.getPrefix()}: id: ${i} file received`)
-    if (++this.responseCount === TOTAL_REQUEST) {
-      setTimeout(() => {
-        process.exit(0)
-      }, 1000)
-    }
+    // blabla
+
+    // const fileName = await new Promise<string>((resolve, reject) => {
+    //   stream.once('metadata', (metadata: grpc.Metadata) => {
+    //     resolve(metadata.get('name')[0].toString())
+    //   }).once('error', err => reject(err))
+    // })
+
+
+    // stream.on('data', (response: MessageFileStreamResponse) => {
+    //   outputStream.write(response.getData())
+    // }).on('end', () => {
+    //   outputStream.end()
+    // })
+
+    // const fileBox = FileBox.fromStream(outputStream, fileName)
+    // await fileBox.toFile(undefined, true)
+    // console.log(`${this.getPrefix()}: id: ${i} file received`)
+    // if (++this.responseCount === TOTAL_REQUEST) {
+    //   setTimeout(() => {
+    //     process.exit(0)
+    //   }, 1000)
+    // }
   }
 
   public triggerHeartbeat () {

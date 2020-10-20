@@ -18,10 +18,15 @@ message MessageFileStreamRequest {
   string id = 1;
 }
 
+message MessageFileStreamInfo {
+  string name = 1;
+  string conversation_id = 2;
+}
+
 message MessageFileStreamResponse {
   oneof response {
     bytes data = 1;
-    string name = 2;
+    MessageFileStreamInfo info = 2;
   }
 }
 
