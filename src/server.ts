@@ -47,11 +47,16 @@ export class TestServer {
         const id = call.request.getId()
         console.log(`${this.getPrefix()}: receive request with id: ${id}`)
 
-        const filebox = FileBox.fromFile(`${__dirname}/test.json`)
-        const stream = await filebox.toStream()
+        const fileBox = FileBox.fromFile(`${__dirname}/test.json`)
+        const stream = await fileBox.toStream()
 
         const response = new MessageFileStreamResponse()
-        response.setName(filebox.name)
+        response.setName(fileBox.name)
+
+        const metaData = new grpc.Metadata()
+        metaData.add('name', fileBox.name)
+        call.sendMetadata(metaData)
+
         stream.on('data', (data: Buffer) => {
           response.setData(data)
           call.write(response)

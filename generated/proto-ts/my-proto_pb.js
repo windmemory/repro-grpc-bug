@@ -713,12 +713,38 @@ proto.MessageFileStreamRequest.prototype.setId = function(value) {
  * @constructor
  */
 proto.MessageFileStreamResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, null, proto.MessageFileStreamResponse.oneofGroups_);
 };
 goog.inherits(proto.MessageFileStreamResponse, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
   proto.MessageFileStreamResponse.displayName = 'proto.MessageFileStreamResponse';
 }
+/**
+ * Oneof group definitions for this message. Each group defines the field
+ * numbers belonging to that group. When of these fields' value is set, all
+ * other fields in the group are cleared. During deserialization, if multiple
+ * fields are encountered for a group, only the last value seen will be kept.
+ * @private {!Array<!Array<number>>}
+ * @const
+ */
+proto.MessageFileStreamResponse.oneofGroups_ = [[1,2]];
+
+/**
+ * @enum {number}
+ */
+proto.MessageFileStreamResponse.ResponseCase = {
+  RESPONSE_NOT_SET: 0,
+  DATA: 1,
+  NAME: 2
+};
+
+/**
+ * @return {proto.MessageFileStreamResponse.ResponseCase}
+ */
+proto.MessageFileStreamResponse.prototype.getResponseCase = function() {
+  return /** @type {proto.MessageFileStreamResponse.ResponseCase} */(jspb.Message.computeOneofCase(this, proto.MessageFileStreamResponse.oneofGroups_[0]));
+};
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -823,15 +849,15 @@ proto.MessageFileStreamResponse.prototype.serializeBinary = function() {
  */
 proto.MessageFileStreamResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getData_asU8();
-  if (f.length > 0) {
+  f = /** @type {!(string|Uint8Array)} */ (jspb.Message.getField(message, 1));
+  if (f != null) {
     writer.writeBytes(
       1,
       f
     );
   }
-  f = message.getName();
-  if (f.length > 0) {
+  f = /** @type {string} */ (jspb.Message.getField(message, 2));
+  if (f != null) {
     writer.writeString(
       2,
       f
@@ -875,7 +901,21 @@ proto.MessageFileStreamResponse.prototype.getData_asU8 = function() {
 
 /** @param {!(string|Uint8Array)} value */
 proto.MessageFileStreamResponse.prototype.setData = function(value) {
-  jspb.Message.setProto3BytesField(this, 1, value);
+  jspb.Message.setOneofField(this, 1, proto.MessageFileStreamResponse.oneofGroups_[0], value);
+};
+
+
+proto.MessageFileStreamResponse.prototype.clearData = function() {
+  jspb.Message.setOneofField(this, 1, proto.MessageFileStreamResponse.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.MessageFileStreamResponse.prototype.hasData = function() {
+  return jspb.Message.getField(this, 1) != null;
 };
 
 
@@ -890,7 +930,21 @@ proto.MessageFileStreamResponse.prototype.getName = function() {
 
 /** @param {string} value */
 proto.MessageFileStreamResponse.prototype.setName = function(value) {
-  jspb.Message.setProto3StringField(this, 2, value);
+  jspb.Message.setOneofField(this, 2, proto.MessageFileStreamResponse.oneofGroups_[0], value);
+};
+
+
+proto.MessageFileStreamResponse.prototype.clearName = function() {
+  jspb.Message.setOneofField(this, 2, proto.MessageFileStreamResponse.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.MessageFileStreamResponse.prototype.hasName = function() {
+  return jspb.Message.getField(this, 2) != null;
 };
 
 

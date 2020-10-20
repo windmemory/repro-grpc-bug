@@ -53,22 +53,23 @@ export class Client {
     const request = new MessageFileStreamRequest()
     request.setId(i.toString())
 
-    const stream = this.grpcClient.messageFileStream(request)
+    const metaData = new grpc.Metadata()
+    metaData.add('name', 'fileName')
+    const stream = this.grpcClient.messageFileStream(request, metaData)
+
+    const fileName = await new Promise<string>((resolve, reject) => {
+      stream.once('metadata', (metadata: grpc.Metadata) => {
+        resolve(metadata.get('name')[0].toString())
+      }).once('error', err => reject(err))
+    })
 
     const outputStream = new PassThrough()
-    let fileName: string | undefined
-    stream.on('data', (response: MessageFileStreamResponse) => {
-      if (!fileName) {
-        fileName = response.getName()
-      }
-      outputStream.write(response.getData())
-    }).on('end', () => outputStream.end())
 
-    if (!fileName) {
-      // FIXME: How to get the fileName from the server?
-      console.error('Can not create file box since no fileName')
-      process.exit(-1)
-    }
+    stream.on('data', (response: MessageFileStreamResponse) => {
+      outputStream.write(response.getData())
+    }).on('end', () => {
+      outputStream.end()
+    })
 
     const fileBox = FileBox.fromStream(outputStream, fileName)
     await fileBox.toFile(undefined, true)

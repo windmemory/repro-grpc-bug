@@ -19,8 +19,10 @@ message MessageFileStreamRequest {
 }
 
 message MessageFileStreamResponse {
-  bytes data = 1;
-  string name = 2;
+  oneof response {
+    bytes data = 1;
+    string name = 2;
+  }
 }
 
 service MyService {

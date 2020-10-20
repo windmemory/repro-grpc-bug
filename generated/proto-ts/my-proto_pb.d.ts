@@ -100,14 +100,19 @@ export namespace MessageFileStreamRequest {
 }
 
 export class MessageFileStreamResponse extends jspb.Message {
+  hasData(): boolean;
+  clearData(): void;
   getData(): Uint8Array | string;
   getData_asU8(): Uint8Array;
   getData_asB64(): string;
   setData(value: Uint8Array | string): void;
 
+  hasName(): boolean;
+  clearName(): void;
   getName(): string;
   setName(value: string): void;
 
+  getResponseCase(): MessageFileStreamResponse.ResponseCase;
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageFileStreamResponse.AsObject;
   static toObject(includeInstance: boolean, msg: MessageFileStreamResponse): MessageFileStreamResponse.AsObject;
@@ -122,6 +127,12 @@ export namespace MessageFileStreamResponse {
   export type AsObject = {
     data: Uint8Array | string,
     name: string,
+  }
+
+  export enum ResponseCase {
+    RESPONSE_NOT_SET = 0,
+    DATA = 1,
+    NAME = 2,
   }
 }
 

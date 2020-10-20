@@ -9,7 +9,7 @@ export const FILE_PATH = path.join(
 
 export const ENDPOINT = 'localhost:8788'
 
-export const TOTAL_REQUEST = 1
+export const TOTAL_REQUEST = 5
 
 export const GRPC_OPTIONS = {
   'grpc.max_receive_message_length': 1024 * 1024 * 150,
