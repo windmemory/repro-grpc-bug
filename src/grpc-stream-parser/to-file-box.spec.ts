@@ -21,6 +21,8 @@
  */
 import test  from 'tstest'
 
+import { PassThrough } from 'stream'
+
 import { FileBox } from 'file-box'
 
 import {
@@ -31,7 +33,6 @@ import {
   toFileBox,
   toFileBoxChunk,
 }                   from './to-file-box'
-import { PassThrough } from 'readable-stream'
 import { firstData } from './first-data'
 
 test('toFileBox()', async t => {
