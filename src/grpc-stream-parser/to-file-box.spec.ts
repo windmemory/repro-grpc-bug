@@ -59,7 +59,7 @@ test('toFileBox()', async t => {
   fileBoxStream.on('end', () => stream.end())
 
   const decodedFileBox = await toFileBox(stream)
-  const data = await (await decodedFileBox.toBuffer()).toString()
+  const data = (await decodedFileBox.toBuffer()).toString()
 
   t.equal(decodedFileBox.name, FILE_BOX_NAME, 'should get file box name')
   t.equal(data, FILE_BOX_DATA, 'should get file box data')
