@@ -1,11 +1,16 @@
 import { FileBox } from 'file-box'
 
+import { PassThrough } from 'stream'
+
 import {
   Readable,
   TypedTransform,
 }                   from './typed-stream'
 import { firstData } from './first-data'
-import { toFileBox } from './to-file-box'
+import {
+  toFileBox,
+  toFileBoxChunk,
+}                   from './to-file-box'
 
 import {
   FileBoxChunk,
@@ -21,16 +26,17 @@ const decoder = () => new TypedTransform<
   MessageSendFileStreamRequest,
   FileBoxChunk
 >({
-  transform: (chunk: MessageSendFileStreamRequest, controller) => {
+  transform: (chunk: MessageSendFileStreamRequest, _, callback) => {
     if (!chunk.hasFileBoxChunk()) {
       throw new Error('no file box chunk')
     }
     const fileBoxChunk = chunk.getFileBoxChunk()
-    controller.enqueue(fileBoxChunk)
-  }
+    callback(null, fileBoxChunk)
+  },
+  objectMode: true,
 })
 
-async function messageSendFileStreamRequestArgs (
+async function toMessageSendFileStreamRequestArgs (
   stream: Readable<MessageSendFileStreamRequest>
 ): Promise<MessageSendFileStreamRequestArgs> {
   const chunk = await firstData(stream)
@@ -48,6 +54,37 @@ async function messageSendFileStreamRequestArgs (
   }
 }
 
+const encoder = () => new TypedTransform<
+  FileBoxChunk,
+  MessageSendFileStreamRequest
+> ({
+  transform: (chunk: FileBoxChunk, _, callback) => {
+    const req = new MessageSendFileStreamRequest()
+    req.setFileBoxChunk(chunk)
+    callback(null, req)
+  },
+  objectMode: true,
+})
+
+async function toMessageSendFileStreamRequest (
+  conversationId: string,
+  fileBox: FileBox,
+): Promise<Readable<MessageSendFileStreamRequest>> {
+  const stream = new PassThrough({ objectMode: true })
+
+  const req1 = new MessageSendFileStreamRequest()
+  req1.setConversationId(conversationId)
+  stream.write(req1)
+
+  const fileBoxChunkStream = await toFileBoxChunk(fileBox)
+  fileBoxChunkStream
+    .pipe(encoder())
+    .pipe(stream)
+
+  return stream
+}
+
 export {
-  messageSendFileStreamRequestArgs,
+  toMessageSendFileStreamRequestArgs,
+  toMessageSendFileStreamRequest,
 }
