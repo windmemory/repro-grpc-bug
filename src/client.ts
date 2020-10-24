@@ -7,7 +7,7 @@ import {
 } from 'stream'
 
 import { MyServiceClient } from '../generated/proto-ts/my-proto_grpc_pb'
-import { EventRequest, EventResponse, MessageFileRequest, MessageFileStreamInfo, MessageFileStreamRequest, MessageFileStreamResponse } from '../generated/proto-ts/my-proto_pb'
+import { EventRequest, EventResponse, MessageFileRequest, MessageFileStreamRequest } from '../generated/proto-ts/my-proto_pb'
 import { ENDPOINT, GRPC_OPTIONS, TOTAL_REQUEST } from './config'
 
 const PRE = 'CLIENT'
@@ -58,32 +58,37 @@ export class Client {
     metaData.add('name', 'fileName')
     const stream = this.grpcClient.messageFileStream(request, metaData)
 
-    const info = await new Promise<MessageFileStreamInfo>((resolve) => {
+    const meta = await new Promise<MessageFileStreamResponseMeta>((resolve, reject) => {
       stream.once('data', (response: MessageFileStreamResponse) => {
-        if (response.hasInfo()) {
-          const info = response.getInfo()
-          resolve(info)
+        if (response.hasMeta()) {
+          const meta = response.getMeta()
+          resolve(meta)
         } else {
-          // reject
+          reject('no meta for file box stream')
         }
       })
     })
-    
+
     const trans = new Transform({
       transform (chunk: MessageFileStreamResponse, encoding, cb) {
+        console.info('Transform ...')
         if (chunk.hasData()) {
-          cb(null, chunk.getData())
+          const data = chunk.getData()
+          console.info('chunk data:', typeof data, data instanceof Uint8Array)
+          console.info('chunk data:', data)
+          cb(null, data)
         } else {
-          cb(new Error('haha'))
-        }  
-      }
+          cb(new Error('no data for file box stream'))
+        }
+      },
+      objectMode: true,
     })
 
-    const fileName = info.getName()
-
-    return FileBox.fromStream(stream.pipe(trans), fileName)
-
-    // blabla
+    console.info('filebox 1')
+    return FileBox.fromStream(
+      stream.pipe(trans),
+      meta.getName(),
+    )
 
     // const fileName = await new Promise<string>((resolve, reject) => {
     //   stream.once('metadata', (metadata: grpc.Metadata) => {

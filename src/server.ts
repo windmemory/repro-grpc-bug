@@ -4,7 +4,7 @@ import { FileBox } from 'file-box'
 import * as fs from 'fs'
 
 import { IMyServiceServer, MyServiceService } from '../generated/proto-ts/my-proto_grpc_pb'
-import { EventResponse, MessageFileResponse, MessageFileStreamResponse } from '../generated/proto-ts/my-proto_pb'
+import { EventResponse, MessageFileResponse } from '../generated/proto-ts/my-proto_pb'
 import { FILE_PATH, GRPC_OPTIONS, ENDPOINT, TOTAL_REQUEST } from './config'
 
 const PRE = 'SERVER'
@@ -29,11 +29,11 @@ export class TestServer {
 
         const response = new MessageFileResponse()
         response.setFilebox(this.data)
-        
+
         console.info(`${this.getPrefix()}: message file sending... id: ${id}`)
         callback(null, response)
         console.info(`${this.getPrefix()}: message file sent... id: ${id}`)
-        
+
         if (++this.requestCount === TOTAL_REQUEST) {
           console.info(`${this.getPrefix()}: message file done`)
           setTimeout(() => {
@@ -50,14 +50,17 @@ export class TestServer {
         const fileBox = FileBox.fromFile(`${__dirname}/test.json`)
         const stream = await fileBox.toStream()
 
-        const response = new MessageFileStreamResponse()
-        response.setName(fileBox.name)
+        const meta = new MessageFileStreamResponseMeta()
+        meta.setName(fileBox.name)
 
-        const metaData = new grpc.Metadata()
-        metaData.add('name', fileBox.name)
-        call.sendMetadata(metaData)
+        {
+          const response = new MessageFileStreamResponse()
+          response.setMeta(meta)
+          call.write(response)
+        }
 
         stream.on('data', (data: Buffer) => {
+          const response = new MessageFileStreamResponse()
           response.setData(data)
           call.write(response)
         }).on('end', () => {
@@ -68,6 +71,7 @@ export class TestServer {
           }, 5 * 1000)
         })
       },
+
       event: async (call) => {
         this.healthInterval = setInterval(() => {
           const response = new EventResponse()

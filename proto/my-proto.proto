@@ -1,15 +1,21 @@
 syntax = "proto3";
 
+message FileBoxChunk {
+  oneof payload {
+    bytes data = 1;
+    string name = 2;
+  }
+}
+
+
 message MessageFileResponse {
   string filebox = 1;
 }
-
 message MessageFileRequest {
   string id = 1;
 }
 
 message EventRequest {}
-
 message EventResponse {
   string payload = 2;
 }
@@ -17,21 +23,19 @@ message EventResponse {
 message MessageFileStreamRequest {
   string id = 1;
 }
+// MessageFileStreamResponse = FileBoxChunk
 
-message MessageFileStreamInfo {
-  string name = 1;
-  string conversation_id = 2;
-}
-
-message MessageFileStreamResponse {
-  oneof response {
-    bytes data = 1;
-    MessageFileStreamInfo info = 2;
+message MessageSendFileStreamRequest {
+  oneof payload {
+    string conversation_id = 1;
+    FileBoxChunk file_box_chunk = 2;
   }
 }
+message MessageSendFileStreamResponse {}
 
 service MyService {
   rpc MessageFile (MessageFileRequest) returns (MessageFileResponse) {}
-  rpc MessageFileStream (MessageFileStreamRequest) returns (stream MessageFileStreamResponse) {}
+  rpc MessageFileStream (MessageFileStreamRequest) returns (stream FileBoxChunk) {}
+  rpc MessageSendFileStream (stream MessageSendFileStreamRequest) returns (MessageSendFileStreamResponse) {}
   rpc Event (EventRequest)  returns (stream EventResponse) {}
 }
