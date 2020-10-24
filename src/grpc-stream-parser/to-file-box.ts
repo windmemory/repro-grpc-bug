@@ -15,44 +15,44 @@ import {
   firstData,
 }           from './first-data'
 
+const decoder = () => new TypedTransform<FileBoxChunk, any> ({
+  transform: (chunk: FileBoxChunk, _, callback) => {
+    if (!chunk.hasData()) {
+      throw new Error('no data')
+    }
+    const data = chunk.getData()
+    callback(null, data)
+  },
+  objectMode: true,
+})
+
 async function toFileBox (
   stream: Readable<FileBoxChunk>,
 ): Promise<FileBox> {
-  const decode = new TypedTransform<FileBoxChunk, any> ({
-    transform: (chunk: FileBoxChunk, _, callback) => {
-      if (!chunk.hasData()) {
-        throw new Error('no data')
-      }
-      const data = chunk.getData()
-      callback(null, data)
-    },
-    objectMode: true,
-  })
-
   const chunk = await firstData(stream)
   if (!chunk.hasName()) {
     throw new Error('no name')
   }
   const fileName = chunk.getName()
-  const fileStream = stream.pipe(decode)
+  const fileStream = stream.pipe(decoder())
 
   const fileBox = FileBox.fromStream(fileStream, fileName)
 
   return fileBox
 }
 
+const encoder = () => new TypedTransform<any, FileBoxChunk> ({
+  transform: (chunk: any, _, callback) => {
+    const fileBoxChunk = new FileBoxChunk()
+    fileBoxChunk.setData(chunk)
+    callback(null, fileBoxChunk)
+  },
+  objectMode: true,
+})
+
 async function toFileBoxChunk (
   fileBox: FileBox,
 ): Promise<Readable<FileBoxChunk>> {
-  const encode = new TypedTransform<any, FileBoxChunk> ({
-    transform: (chunk: any, _, callback) => {
-      const fileBoxChunk = new FileBoxChunk()
-      fileBoxChunk.setData(chunk)
-      callback(null, fileBoxChunk)
-    },
-    objectMode: true,
-  })
-
   const stream = new PassThrough({ objectMode: true })
 
   const chunk = new FileBoxChunk()
@@ -62,7 +62,7 @@ async function toFileBoxChunk (
   stream.write(chunk)
 
   fileBox
-    .pipe(encode)
+    .pipe(encoder())
     .pipe(stream)
 
   return stream
