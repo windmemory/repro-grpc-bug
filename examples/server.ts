@@ -1,6 +1,5 @@
 import grpc from 'grpc'
 import { FileBox } from 'file-box'
-import { Transform } from 'stream'
 
 import { ENDPOINT, GRPC_OPTIONS } from '../src/config'
 
@@ -9,12 +8,11 @@ import {
   MyServiceService,
 }                   from '../generated/proto-ts/my-proto_grpc_pb'
 import {
-  EventRequest,
   EventResponse,
-  FileBoxChunk,
   MessageFileResponse,
-  MessageSendFileStreamRequest,
 }                   from '../generated/proto-ts/my-proto_pb'
+import { toMessageSendFileStreamRequestArgs } from '../src/grpc-stream-parser/message-send-file-stream-request'
+import { toFileBoxChunk } from '../src/grpc-stream-parser/to-file-box'
 
 // const blocked = require('blocked')
 // blocked(function(ms){
@@ -36,39 +34,16 @@ const impl: IMyServiceServer =  {
     const id = call.request.getId()
     console.log(`receive request with id: ${id}`)
 
-    const fileBox = FileBox.fromFile(`${__dirname}/test.json`)
+    const fileBox = FileBox.fromFile(`${__dirname}/../tests/fixtures/test.dat`)
 
-    const chunk = new FileBoxChunk()
-    chunk.setName(fileBox.name)
-    call.write(chunk)
-
-    const toFileBoxChunk = new Transform({
-      transform: (chunk, encoding, callback) => {
-        void encoding
-        const fileBoxChunk = new FileBoxChunk()
-        fileBoxChunk.setData(chunk)
-        callback(null, fileBoxChunk)
-      }
-    })
-
-    const stream = await fileBox.toStream()
-    stream.pipe(toFileBoxChunk).pipe(call)
+    const stream = await toFileBoxChunk(fileBox)
+    stream.pipe(call)
   },
 
   messageSendFileStream: async (callStream) => {
-    const conversationId = await new Promise((resolve, reject) => {
-      const timer = setTimeout(reject, 1000 * 10)
-      callStream.once('data', (chunk: MessageSendFileStreamRequest) => {
-        if (!chunk.hasConversationId()) {
-          reject('no conversation id')
-        }
-
-        const conversationId = chunk.getConversationId()
-        resolve(conversationId)
-
-        clearTimeout(timer)
-      })
-    })
+    const args = await toMessageSendFileStreamRequestArgs(callStream)
+    console.info('conversation id:', args.conversationId)
+    args.fileBox.toFile(undefined, true)
   },
 
   event: async (call) => {
@@ -86,7 +61,7 @@ async function main () {
     ...GRPC_OPTIONS,
   })
 
-  this.server.addService(
+  server.addService(
     MyServiceService,
     impl,
   )

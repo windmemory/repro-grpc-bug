@@ -26,7 +26,7 @@ const decoder = () => new TypedTransform<
   MessageSendFileStreamRequest,
   FileBoxChunk
 >({
-  transform: (chunk: MessageSendFileStreamRequest, _, callback) => {
+  transform: (chunk: MessageSendFileStreamRequest, _: any, callback: any) => {
     if (!chunk.hasFileBoxChunk()) {
       throw new Error('no file box chunk')
     }
@@ -58,7 +58,7 @@ const encoder = () => new TypedTransform<
   FileBoxChunk,
   MessageSendFileStreamRequest
 > ({
-  transform: (chunk: FileBoxChunk, _, callback) => {
+  transform: (chunk: FileBoxChunk, _: any, callback: any) => {
     const req = new MessageSendFileStreamRequest()
     req.setFileBoxChunk(chunk)
     callback(null, req)

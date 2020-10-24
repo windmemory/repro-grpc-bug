@@ -16,7 +16,7 @@ import {
 }           from './first-data'
 
 const decoder = () => new TypedTransform<FileBoxChunk, any> ({
-  transform: (chunk: FileBoxChunk, _, callback) => {
+  transform: (chunk: FileBoxChunk, _: any, callback: any) => {
     if (!chunk.hasData()) {
       throw new Error('no data')
     }
@@ -42,7 +42,7 @@ async function toFileBox (
 }
 
 const encoder = () => new TypedTransform<any, FileBoxChunk> ({
-  transform: (chunk: any, _, callback) => {
+  transform: (chunk: any, _: any, callback: any) => {
     const fileBoxChunk = new FileBoxChunk()
     fileBoxChunk.setData(chunk)
     callback(null, fileBoxChunk)
