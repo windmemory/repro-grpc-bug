@@ -1,18 +1,20 @@
 import * as grpc from 'grpc'
-import * as moment from 'moment'
+import moment from 'moment'
 import { FileBox } from 'file-box'
 import * as fs from 'fs'
 
 import { IMyServiceServer, MyServiceService } from '../generated/proto-ts/my-proto_grpc_pb'
-import { EventResponse, MessageFileResponse } from '../generated/proto-ts/my-proto_pb'
+import { EventResponse, MessageFileResponse, MessageFileStreamResponse } from '../generated/proto-ts/my-proto_pb'
 import { FILE_PATH, GRPC_OPTIONS, ENDPOINT, TOTAL_REQUEST } from './config'
+import { fileBoxToChunkStream } from './stream-new-version/file-box-helper'
+import { packFileBoxChunk } from './stream-new-version/file-box-packer'
 
 const PRE = 'SERVER'
 
 export class TestServer {
-  private server: grpc.Server
+  private server?: grpc.Server
 
-  private healthInterval: NodeJS.Timeout
+  private healthInterval?: NodeJS.Timeout
 
   private requestCount: number = 0
   private data = this.getData()
@@ -21,7 +23,6 @@ export class TestServer {
     this.server = new grpc.Server({
       ...GRPC_OPTIONS,
     })
-
     const impl: IMyServiceServer =  {
       messageFile: async (call, callback) => {
         const id = call.request.getId()
@@ -37,7 +38,7 @@ export class TestServer {
         if (++this.requestCount === TOTAL_REQUEST) {
           console.info(`${this.getPrefix()}: message file done`)
           setTimeout(() => {
-            clearInterval(this.healthInterval)
+            clearInterval(this.healthInterval!)
             console.info('cleared interval')
           }, 5 * 1000)
         }
@@ -48,28 +49,15 @@ export class TestServer {
         console.log(`${this.getPrefix()}: receive request with id: ${id}`)
 
         const fileBox = FileBox.fromFile(`${__dirname}/test.json`)
-        const stream = await fileBox.toStream()
+        fileBox.name = `${Date.now()}-${fileBox.name}`
 
-        const meta = new MessageFileStreamResponseMeta()
-        meta.setName(fileBox.name)
+        const chunkStream = await fileBoxToChunkStream(fileBox)
+        const responseStream = packFileBoxChunk(chunkStream, MessageFileStreamResponse)
+        responseStream.pipe(call)
+      },
 
-        {
-          const response = new MessageFileStreamResponse()
-          response.setMeta(meta)
-          call.write(response)
-        }
-
-        stream.on('data', (data: Buffer) => {
-          const response = new MessageFileStreamResponse()
-          response.setData(data)
-          call.write(response)
-        }).on('end', () => {
-          call.end()
-          setTimeout(() => {
-            clearInterval(this.healthInterval)
-            console.info('cleared interval')
-          }, 5 * 1000)
-        })
+      messageSendFileStream: async (call, callback) => {
+        console.log(call, callback)
       },
 
       event: async (call) => {
@@ -93,7 +81,7 @@ export class TestServer {
         console.info(error)
         console.log(`Server bind port: ${port}`)
 
-        this.server.start()
+        this.server!.start()
 
       },
     )

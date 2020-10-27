@@ -17,7 +17,7 @@ const checkDataFile = () => {
 
 const main = async () => {
 
-  blocked(function(ms){
+  blocked(function(ms: number){
     console.info("=============BLOCKED FOR " + ms + " ms")
   }, {
     threshold: 150,

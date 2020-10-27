@@ -23,7 +23,9 @@ message EventResponse {
 message MessageFileStreamRequest {
   string id = 1;
 }
-// MessageFileStreamResponse = FileBoxChunk
+message MessageFileStreamResponse {
+  FileBoxChunk file_box_chunk = 1;
+}
 
 message MessageSendFileStreamRequest {
   oneof payload {
@@ -35,7 +37,7 @@ message MessageSendFileStreamResponse {}
 
 service MyService {
   rpc MessageFile (MessageFileRequest) returns (MessageFileResponse) {}
-  rpc MessageFileStream (MessageFileStreamRequest) returns (stream FileBoxChunk) {}
+  rpc MessageFileStream (MessageFileStreamRequest) returns (stream MessageFileStreamResponse) {}
   rpc MessageSendFileStream (stream MessageSendFileStreamRequest) returns (MessageSendFileStreamResponse) {}
   rpc Event (EventRequest)  returns (stream EventResponse) {}
 }
