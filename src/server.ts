@@ -53,6 +53,7 @@ export class TestServer {
 
         const chunkStream = await fileBoxToChunkStream(fileBox)
         const responseStream = packFileBoxChunk(chunkStream, MessageFileStreamResponse)
+        call.emit('error', new Error('lalala'))
         responseStream.pipe(call)
       },
 

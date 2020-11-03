@@ -51,10 +51,16 @@ export class Client {
     const request = new MessageFileStreamRequest()
     request.setId(i.toString())
 
-    const stream = this.grpcClient!.messageFileStream(request)
+
+    let stream
+    stream = this.grpcClient!.messageFileStream(request)
+    stream.on('error', e => {
+      // This is the place to catch the error
+      console.log('first e')
+      console.error(e)
+    })
 
     const chunkStream = unpackFileBoxChunk(stream)
-
 
     const fileBox = await chunkStreamToFileBox(chunkStream)
     return fileBox
@@ -68,7 +74,11 @@ export class Client {
         for (let i = 0; i < TOTAL_REQUEST; i++) {
           const result = await this.makeCallStream(i)
           console.info(`${this.getPrefix()}: received data`)
-          await result.toFile(undefined, true)
+          try {
+            await result.toFile(undefined, true)
+          } catch (e) {
+            console.error(e)
+          }
         }
       }, 500)
     })
