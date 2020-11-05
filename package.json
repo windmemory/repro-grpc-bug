@@ -7,7 +7,8 @@
     "generate": "bash -x scripts/generate-stub.sh",
     "test-debug": "GRPC_VERBOSITY=debug GRPC_TRACE=http npm run test",
     "test": "node --max_old_space_size=4096 ./node_modules/.bin/ts-node src/test.ts",
-    "str": "node --max_old_space_size=4096 ./node_modules/.bin/ts-node scripts/gen-test-str.ts"
+    "str": "node --max_old_space_size=4096 ./node_modules/.bin/ts-node scripts/gen-test-str.ts",
+    "test:emit": "node --max_old_space_size=4096 ./node_modules/.bin/ts-node src/test-emit-error.spec.ts"
   },
   "repository": {
     "type": "git",
